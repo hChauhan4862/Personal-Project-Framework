@@ -1,0 +1,656 @@
+Table "dbo"."ROUTE_MODULES" {
+  "SEQ" int [not null, increment, pk]
+  "MODULE_NAME" nvarchar(50) [not null] // VMS, PANTRY, COMMUNICATION
+  "MODULE_DESC" nvarchar(255)
+  "MODULE_ALLOWED" bit [not null, default: 1]  
+}
+
+Table "dbo"."ROUTE_GROUPS" {
+  "SEQ" int [not null, increment, pk]
+  "GROUP_NAME" nvarchar(50) [not null]
+  "GROUP_DESC" nvarchar(255)
+  "ALLOW_ORG_CHANGE" bit [not null, default: 1]
+  "ALLOW_ORG_SHOW_IN_LST" bit [not null, default: 1]
+}
+
+Table "dbo"."ROUTE_GROUPS_DEPENDENCY" {
+  "ROUTE_GROUP_SEQ" int [not null]
+  "ROUTE_MODULE_SEQ" int [not null]
+
+Indexes {
+  (ROUTE_GROUP_SEQ, ROUTE_MODULE_SEQ) [pk]
+}
+}
+
+Table "dbo"."ROUTE_ROUTES" {
+  "SEQ" int [not null, increment, pk]
+  "ROUTE_NAME" nvarchar(50) [not null]
+  "ROUTE_PATH" nvarchar(500) [not null]
+  "ROUTE_METHOD" nvarchar(10) [not null]
+}
+
+Table "dbo"."ROUTE_ROUTES_ATTR " {
+  "SEQ" int [not null, increment, pk]
+  "HANDLER_SEQ" int [not null]
+  "ATTR_NAME" nvarchar(50) [not null]
+  "ATTR_DATATYPE" nvarchar(50)
+  "ATTR_INT_MIN" int [default: 0]
+  "ATTR_INT_MAX" int [default: 0]
+  "ATTR_STRING_REGEX" nvarchar(255)
+  "ATTR_DROPDOWN_LIST" nvarchar(255)
+  "ATTR_DROPDOWN_TABLE" nvarchar(50)
+  "DEFAULT_VALUE" nvarchar(255) // If DEFAULT_VALUE is not null, then the value will be set as default value
+}
+
+Table "dbo"."ROUTE_RABAC_HANDLERS" {
+  "IDNT_DEPT_CODE" varchar(12) [not null]
+  "IDNT_DESG_CODE" varchar(12) [not null]
+  "IDNT_ROLE_CODE" varchar(12) [not null]
+  "HANDLER_SEQ" int [not null]
+  "ALLOWED" bit [not null, default: 0]
+}
+
+Table "dbo"."ROUTE_RABAC_ATTRS" {
+  "IDNT_DEPT_CODE" varchar(12) [not null]
+  "IDNT_DESG_CODE" varchar(12) [not null]
+  "IDNT_ROLE_CODE" varchar(12) [not null]
+  "ATTR_SEQ" int [not null]
+  "VALUE" nvarchar(255)
+}
+
+Table "dbo"."APP_CONFIG" {
+  "NAME" varchar(50) [not null]
+  "VALUE" nvarchar(MAX)
+  "DATATYPE" nvarchar(50)
+  "INT_MIN" int [default: 0]
+  "INT_MAX" int [default: 0]
+  "ATTR_DROPDOWN_LIST" nvarchar(255)
+  "STRING_REGEX" nvarchar(255)
+
+Indexes {
+  NAME [pk]
+}
+}
+
+Table "dbo"."APP_LOGIN_SESSIONS" {
+  "SEQ" int [not null, increment]
+  "TOKEN" nvarchar(32) [not null]
+  "DEVICE_ID" nvarchar(30) [not null]
+  "PLATFORM" nvarchar(10) [not null]
+  "BROWSER" nvarchar(15) [not null]
+  "USER_AGENT" nvarchar(255) [not null]
+  "OS" nvarchar(20) [not null]
+  "IMEI" nvarchar(30) [not null]
+  "LOGIN_AT" char(14) [not null]
+  "LOGIN_EXPIRE" char(14) [not null]
+  "LOGIN_STATUS" bit [not null, default: 1]
+  "USER_ID" nvarchar(30) [not null]
+  "FCM_TOKEN" nvarchar(255)
+
+Indexes {
+  SEQ [pk]
+}
+}
+
+Table "dbo"."APP_PLATFORM_CAT" {
+  "PLATFORM_ID" int [not null, increment]
+  "PLATFORM_NAME" nvarchar(10) [not null]
+
+Indexes {
+  PLATFORM_ID [pk]
+  PLATFORM_NAME [unique, name: "WN_PLATFORM_PLATFORM_NAME_key"]
+}
+}
+
+Table "dbo"."APP_RESPONSE_CODES" {
+  "RES_CODE" varchar(10) [not null]
+  "ERROR_CODE" varchar(10) [not null]
+  "DESCRIPTION" varchar(MAX) [not null]
+  "DESCRIPTION_LOCAL" nvarchar(MAX)
+  "RESPONSE" varchar(MAX) [not null]
+  "RESPONSE_LOCAL" nvarchar(MAX) [not null]
+  "CATEGORY" int
+
+Indexes {
+  RES_CODE [pk]
+}
+}
+
+Table "dbo"."APP_RESPONSE_CODES_CAT" {
+  "SEQ_ID" int [not null, increment]
+  "NAME" varchar(30) [not null]
+
+Indexes {
+  SEQ_ID [pk]
+  NAME [unique, name: "UQ__APP_RESP__D9C1FA00D93DEC29"]
+}
+}
+
+Table "dbo"."COMMUNICATION_EMAILS" {
+  "SEQ" int [not null, increment]
+  "EMAIL_ID" nvarchar(30) [not null]
+  "EMAIL_TO" nvarchar(100) [not null]
+  "EMAIL_CC" nvarchar(100)
+  "EMAIL_BCC" nvarchar(100)
+  "EMAIL_SUBJECT" nvarchar(100) [not null]
+  "EMAIL_BODY" nvarchar(MAX) [not null]
+  "EMAIL_STATUS" bit [not null, default: 0]
+  "EMAIL_AT" char(14) [not null]
+  "EMAIL_EXPIRE" char(14) [not null]
+  "EMAIL_TYPE" nvarchar(10) [not null]
+  "CREATED_BY" nvarchar(30) [not null]
+  "UPDATED_BY" nvarchar(30)
+  "CREATED_AT" char(14) [not null]
+  "UPDATED_AT" char(14)
+
+Indexes {
+  SEQ [pk]
+}
+}
+
+Table "dbo"."COMMUNICATION_WEBPUSH" {
+  "SEQ_ID" int [not null, increment]
+  "MESSAGE_ID" nvarchar(30) [not null]
+  "PUSH_DATE_TIME" char(14) [not null]
+  "USER_ID" nvarchar(30) [not null]
+  "MESSAGE_TYPE" char(2) [not null]
+  "MESSAGE_TITLE_EN" nvarchar(100) [not null]
+  "MESSAGE_BODY_EN" nvarchar(MAX) [not null]
+  "MESSAGE_TITLE_KO" nvarchar(100) [not null]
+  "MESSAGE_BODY_KO" nvarchar(MAX) [not null]
+  "SENT_STATUS" bit [not null, default: 0]
+  "SENT_DATE_TIME" char(14)
+
+Indexes {
+  SEQ_ID [pk]
+}
+}
+
+Table "dbo"."ORG_COMPANY" {
+  "COMPANY_CODE" varchar(10) [not null]
+  "COMPANY_NAME" nvarchar(50) [not null]
+  "COMPANY_ADDRESS" nvarchar(255)
+  "COMPANY_CONTACT" nvarchar(15)
+  "COMPANY_EMAIL" nvarchar(255)
+  "COMPANY_WEBSITE" nvarchar(255)
+  "COMPANY_LOGO" nvarchar(255)
+
+Indexes {
+  COMPANY_CODE [pk]
+  COMPANY_NAME [name: "IDX_COMPANY_NAME"]
+}
+}
+
+Table "dbo"."ORG_DAILY_TIME" {
+  "LOCATION" nvarchar(20) [not null]
+  "LOCATION_ID" int [not null]
+  "TIME_TYPE" char(1) [not null]
+  "ALWAYS_OPEN" char(6) [not null]
+  "ALWAYS_CLOSE" char(6) [not null]
+  "SUNDAY" bit [not null, default: 0]
+  "SUNDAY_OPEN" char(6)
+  "SUNDAY_CLOSE" char(6)
+  "MONDAY" bit [not null, default: 0]
+  "MONDAY_OPEN" char(6)
+  "MONDAY_CLOSE" char(6)
+  "TUESDAY" bit [not null, default: 0]
+  "TUESDAY_OPEN" char(6)
+  "TUESDAY_CLOSE" char(6)
+  "WEDNESDAY" bit [not null, default: 0]
+  "WEDNESDAY_OPEN" char(6)
+  "WEDNESDAY_CLOSE" char(6)
+  "THURSDAY" bit [not null, default: 0]
+  "THURSDAY_OPEN" char(6)
+  "THURSDAY_CLOSE" char(6)
+  "FRIDAY" bit [not null, default: 0]
+  "FRIDAY_OPEN" char(6)
+  "FRIDAY_CLOSE" char(6)
+  "SATURDAY" bit [not null, default: 0]
+  "SATURDAY_OPEN" char(6)
+  "SATURDAY_CLOSE" char(6)
+
+Indexes {
+  (LOCATION, LOCATION_ID) [pk]
+}
+}
+
+Table "dbo"."ORG_DEPT_CODE" {
+  "DEPT_SEQ" int [not null, increment]
+  "DEPT_CODE" nvarchar(50) [not null]
+  "DEPT_NAME" nvarchar(50) [not null]
+
+Indexes {
+  DEPT_SEQ [pk]
+  DEPT_CODE [unique, name: "UQ__APP_DEPT__3AD7F1E26228FB5A"]
+  DEPT_CODE [name: "IDX_DT_CODE"]
+}
+}
+
+Table "dbo"."ORG_DESG_CODE" {
+  "DESG_SEQ" int [not null, increment]
+  "DESG_CODE" nvarchar(50) [not null]
+  "DESG_NAME" nvarchar(50) [not null]
+  "DEPT_CODE" nvarchar(50) [not null]
+
+Indexes {
+  DESG_SEQ [pk]
+  DESG_CODE [unique, name: "UQ__APP_DESG__3AD7F1E2D3A3D3A1"]
+  DESG_CODE [name: "IDX_DSG_CODE"]
+}
+}
+
+Table "dbo"."ORG_ROLE_CODE" {
+  "ROLE_SEQ" int [not null, increment]
+  "ROLE_CODE" nvarchar(50) [not null]
+  "ROLE_NAME" nvarchar(50) [not null]
+  "DESG_CODE" nvarchar(50) [not null]
+
+Indexes {
+  ROLE_SEQ [pk]
+  ROLE_CODE [unique, name: "UQ__APP_ROLE__20BB649D2C37E411"]
+  ROLE_CODE [name: "IDX_ROLE_CODE"]
+}
+}
+
+Table "dbo"."ORG_EMPLOYEES" {
+  "SEQ_ID" int [not null, increment]
+  "EMP_UNQCD" nvarchar(50) [not null]
+  "EMP_EMAIL" nvarchar(255) [not null]
+  "EMP_NAME" nvarchar(255) [not null]
+  "EMP_CONTACT_NO_1" nvarchar(15)
+  "EMP_CONTACT_NO_2" nvarchar(15)
+  "GENDER" char(1)
+  "IDNT_DEPT_CODE" varchar(15)
+  "IDNT_DEPT_NAME" nvarchar(25)
+  "IDNT_DESG_CODE" varchar(15)
+  "IDNT_DESG_NAME" nvarchar(25)
+  "IDNT_ROLE_CODE" varchar(15)
+  "IDNT_ROLE_NAME" nvarchar(25)
+  "LOGIN_ID" nvarchar(50) [not null]
+  "PASSWORD" nvarchar(100) [not null]
+  "PROFILE_PIC" nvarchar(100)
+  "IS_ACTIVE" bit [not null, default: 1]
+  "IS_DELETED" bit [not null, default: 0]
+  "CREATED_AT" char(14) [not null]
+  "UPDATED_AT" char(14)
+
+Indexes {
+  SEQ_ID [pk]
+  IDNT_DEPT_CODE [name: "IDX_DEPARTMENT_CODE"]
+  IDNT_DESG_CODE [name: "IDX_DESIGNATION_CODE"]
+  IDNT_ROLE_CODE [name: "IDX_ROLE_CODE"]
+  EMP_CONTACT_NO_1 [name: "IDX_USER_CONTACT_NO"]
+  EMP_EMAIL [name: "IDX_USER_EMAIL"]
+  LOGIN_ID [name: "IDX_USER_ID"]
+  EMP_NAME [name: "IDX_USER_NAME"]
+  EMP_UNQCD [name: "IDX_USER_UNQCD"]
+  EMP_EMAIL [unique, name: "WN_INTERNAL_USERS_USER_EMAIL_key"]
+  LOGIN_ID [unique, name: "WN_INTERNAL_USERS_USER_ID_key"]
+  EMP_UNQCD [unique, name: "WN_INTERNAL_USERS_USER_UNQCD_key"]
+}
+}
+
+Table "dbo"."ORG_FLOORS" {
+  "FLOOR_SEQ" int [not null, increment]
+  "FLOOR_NAME" nvarchar(50) [not null]
+  "OFFICE_UNQCD" nvarchar(50) [not null]
+  "IS_ACTIVE" bit [not null, default: 1]
+
+Indexes {
+  FLOOR_SEQ [pk]
+  FLOOR_NAME [name: "IDX_FLOOR_NAME"]
+}
+}
+
+Table "dbo"."ORG_HOLIDAY" {
+  "HOLIDAY_ID" int [not null, increment]
+  "HOLIDAY_DATE" char(8) [not null]
+  "HOLIDAY_NAME" nvarchar(50) [not null]
+  "HOLIDAY_REASON" nvarchar(100)
+  "COMPANY_HOLIDAY" bit [not null, default: 0]
+  "OFFICE_ID" int [not null]
+
+Indexes {
+  HOLIDAY_ID [pk]
+}
+}
+
+Table "dbo"."ORG_NOTICES" {
+  "NOTICE_ID" int [not null, increment]
+  "NOTICE_DATE" char(8) [not null]
+  "NOTICE_TITLE" nvarchar(100) [not null]
+  "NOTICE_BODY" nvarchar(MAX) [not null]
+  "NOTICE_TYPE" char(1) [not null]
+  "IS_ACTIVE" bit [not null, default: 1]
+  "CREATED_AT" char(14) [not null]
+  "UPDATED_AT" char(14)
+
+Indexes {
+  NOTICE_ID [pk]
+  NOTICE_DATE [name: "IDX_NOTICE_DATE"]
+  NOTICE_TITLE [name: "IDX_NOTICE_TITLE"]
+}
+}
+
+Table "dbo"."ORG_OFFICES" {
+  "OFFICE_UNQCD" nvarchar(15) [not null]
+  "OFFICE_NAME" nvarchar(50) [not null]
+  "OFFICE_ADDRESS" nvarchar(255)
+  "COMPANY_CODE" char(10) [not null]
+  "IS_ACTIVE" bit [not null, default: 1]
+
+Indexes {
+  OFFICE_UNQCD [pk]
+  OFFICE_NAME [name: "IDX_OFFICE_NAME"]
+}
+}
+
+Table "dbo"."ORG_ROOMS" {
+  "ROOM_ID" int [not null, increment]
+  "ROOM_NUMBER" int [not null]
+  "ROOM_NAME" nvarchar(50) [not null]
+  "FLOOR_SEQ" int [not null]
+  "ROOM_CAT_SEQ" int
+  "ROOM_CAPACITY" int [not null]
+  "IS_ACTIVE" bit [not null, default: 1]
+
+Indexes {
+  ROOM_ID [pk]
+  ROOM_NAME [name: "IDX_ROOM_NAME"]
+  (ROOM_NAME, FLOOR_SEQ) [name: "IDX_ROOM_NAME_FLOOR_ID"]
+}
+}
+
+Table "dbo"."ORG_ROOMS_CAT" {
+  "ROOM_CAT_SEQ" int [not null, increment]
+  "ROOM_CAT_NAME" nvarchar(50) [not null]
+  "ROOM_CAT_CAPACITY" int [not null]
+
+Indexes {
+  ROOM_CAT_SEQ [pk]
+}
+}
+
+Table "dbo"."ORG_SPECIAL_CLOSE" {
+  "CLOSE_ID" int [not null, increment]
+  "CLOSE_START" char(14) [not null]
+  "CLOSE_END" char(14) [not null]
+  "CLOSE_NAME" nvarchar(50) [not null]
+  "CLOSE_REASON" nvarchar(100)
+  "OFFICE_ID" int [not null]
+  "FLOOR_ID" int
+  "ROOM_ID" int
+  "CREATED_AT" char(14) [not null]
+  "UPDATED_AT" char(14)
+
+Indexes {
+  CLOSE_ID [pk]
+  FLOOR_ID [name: "IDX_FLOOR_ID"]
+  OFFICE_ID [name: "IDX_OFFICE_ID"]
+  ROOM_ID [name: "IDX_ROOM_ID"]
+}
+}
+
+Table "dbo"."PANTRY_INVENTORY_REGISTER" {
+  "SEQ_ID" int [not null, increment]
+  "INVENTORY_DATE_TIME" char(14) [not null]
+  "ITEM_ID" int [not null]
+  "ITEM_NAME" nvarchar(50) [not null]
+  "OPENING_QTY" float [not null]
+  "SPENT_QTY" float [not null]
+  "TOTAL_QTY" float [not null]
+  "MINIMUM_QTY_SET" float [not null]
+  "UNIT_ID" int [not null]
+  "UNIT_NAME" nvarchar(10) [not null]
+  "PANTRY_ID" int [not null]
+
+Indexes {
+  SEQ_ID [pk]
+  (INVENTORY_DATE_TIME, ITEM_ID) [name: "IDX_INVENTORY_DATE_TIME"]
+  (PANTRY_ID, INVENTORY_DATE_TIME) [name: "IDX_PANTRY_INVENTORY_DATE_TIME"]
+}
+}
+
+Table "dbo"."PANTRY_ITEMS" {
+  "SEQ" int [not null, increment]
+  "ITEM_CODE" nvarchar(4) [not null]
+  "ITEM_ICON" nvarchar(50) [not null]
+  "ITEM_NAME" nvarchar(50) [not null]
+  "CAT_SEQ" int [not null]
+
+Indexes {
+  SEQ [pk]
+  ITEM_CODE [name: "IDX_ITEM_CODE"]
+  ITEM_NAME [name: "IDX_ITEM_NAME"]
+  ITEM_CODE [unique, name: "WN_PANTRY_ITEMS_ITEM_CODE_key"]
+}
+}
+
+Table "dbo"."PANTRY_ITEMS_CAT" {
+  "CAT_SEQ" int [not null, increment]
+  "CAT_NAME" nvarchar(30) [not null]
+  "CAT_ACTIVE" bit [not null, default: 1]
+
+Indexes {
+  CAT_SEQ [pk]
+  CAT_NAME [name: "IDX_CAT_NAME"]
+  CAT_NAME [unique, name: "WN_PANTRY_ITEMS_CATEGORY_CAT_NAME_key"]
+}
+}
+
+Table "dbo"."PANTRY_ITEMS_MAP" {
+  "PANTRY_ID" int [not null]
+  "ITEM_ID" int [not null]
+
+Indexes {
+  (PANTRY_ID, ITEM_ID) [pk]
+  (PANTRY_ID, ITEM_ID) [name: "IDX_PANTRY_ITEM_MAPPING"]
+}
+}
+
+Table "dbo"."PANTRY_ITEMUNITS" {
+  "UNIT_ID" int [not null, increment]
+  "UNIT_NAME" nvarchar(10) [not null]
+  "UNIT_CODE" nvarchar(4) [not null]
+
+Indexes {
+  UNIT_ID [pk]
+  UNIT_NAME [name: "IDX_UNIT_NAME"]
+  UNIT_CODE [unique, name: "WN_UNIT_OF_ITEM_UNIT_CODE_key"]
+  UNIT_NAME [unique, name: "WN_UNIT_OF_ITEM_UNIT_NAME_key"]
+}
+}
+
+Table "dbo"."PANTRY_LIST" {
+  "PANTRY_ID" int [not null, increment]
+  "PANTRY_UNQCD" nvarchar(10) [not null]
+  "PANTRY_CODE" nvarchar(4) [not null]
+  "PANTRY_NAME" nvarchar(50) [not null]
+
+Indexes {
+  PANTRY_ID [pk]
+  PANTRY_CODE [name: "IDX_PANTRY_CODE"]
+  PANTRY_NAME [name: "IDX_PANTRY_NAME"]
+  PANTRY_UNQCD [name: "IDX_PANTRY_UNQCD"]
+  PANTRY_CODE [unique, name: "WN_PANTRY_PANTRY_CODE_key"]
+  PANTRY_UNQCD [unique, name: "WN_PANTRY_PANTRY_UNQCD_key"]
+}
+}
+
+Table "dbo"."PANTRY_ORDERS" {
+  "ORDER_ID" nvarchar(50) [not null]
+  "BOOKING_ID" nvarchar(30) [not null]
+  "PANTRY_ID" int [not null]
+  "PANTRY_CODE" nvarchar(4) [not null]
+  "ROOM_ID" int [not null]
+  "HOST_ID" nvarchar(30) [not null]
+  "HOST_NAME" nvarchar(50) [not null]
+  "ORDER_DATETIME" char(14) [not null]
+  "STATUS" int [not null, default: 0]
+  "ORDER_CONFIRM_AT" char(14)
+  "ORDER_DELIVER_AT" char(14)
+  "ORDER_CANCEL_AT" char(14)
+  "PROCESSED_BY" nvarchar(30)
+
+Indexes {
+  ORDER_ID [pk]
+  (BOOKING_ID, ROOM_ID, PANTRY_ID, HOST_ID, ORDER_DATETIME) [name: "IDX_BOOKING_ROOM_PANTRY_HOST_ORDER_DATETIME"]
+  (HOST_ID, ORDER_DATETIME) [name: "IDX_HOST_ORDER_DATETIME"]
+  (PANTRY_ID, ORDER_DATETIME) [name: "IDX_PANTRY_ORDER_DATETIME"]
+  (ROOM_ID, ORDER_DATETIME) [name: "IDX_ROOM_ORDER_DATETIME"]
+}
+}
+
+Table "dbo"."PANTRY_ORDERS_ITEMS" {
+  "ORDER_ID" nvarchar(50) [not null]
+  "ITEM_ID" int [not null]
+  "ITEM_CODE" nvarchar(4) [not null]
+  "QTY" int [not null]
+  "ORDER_ITEM_STATUS" int [not null, default: 0]
+  "COMMENT" nvarchar(MAX)
+
+Indexes {
+  ORDER_ID [pk]
+  (ORDER_ID, ITEM_ID) [name: "IDX_ORDER_ITEM"]
+}
+}
+
+Table "dbo"."PANTRY_ROOM_PANTRY_MAPPING" {
+  "PANTRY_ID" int [not null]
+  "ROOMS_ID" int [not null]
+  "IS_ACTIVE" bit [not null, default: 1]
+
+Indexes {
+  (PANTRY_ID, ROOMS_ID) [pk]
+  (PANTRY_ID, ROOMS_ID) [name: "IDX_PANTRY_ROOMS_MAPPING"]
+}
+}
+
+Table "dbo"."VMS_AMENITIES" {
+  "AMENITIES_ID" int [not null, increment]
+  "AMENITIES_NAME" nvarchar(30) [not null]
+  "ICON" nvarchar(50)
+  "IS_ACTIVE" bit [not null, default: 1]
+  "CREATED_AT" char(14) [not null]
+  "UPDATED_AT" char(14)
+
+Indexes {
+  AMENITIES_ID [pk]
+  AMENITIES_NAME [name: "IDX_AMENITIES_NAME"]
+}
+}
+
+Table "dbo"."VMS_BOOKINGS" {
+  "BOOKING_ID" nvarchar(30) [not null]
+  "ROOM_ID" int [not null]
+  "ROOM_NO" nvarchar(6) [not null]
+  "FLOOR_ID" int [not null]
+  "FLOOR_NO" nvarchar(6) [not null]
+  "OFFICE_ID" int [not null]
+  "OFFICE_NAME" nvarchar(50) [not null]
+  "USER_ID" nvarchar(30) [not null]
+  "USER_NAME" nvarchar(50) [not null]
+  "USER_DEPT_CODE" varchar(6)
+  "USER_DESG_NAME" varchar(6)
+  "USER_ROLE_NAME" varchar(6)
+  "USER_TYPE" char(1) [not null]
+  "BOOKING_MODE" char(1) [not null]
+  "DEVICE_ID" nvarchar(30)
+  "STATUS" char(1) [not null]
+  "CONFIRMATION_DATE_TIME" char(14)
+  "CANCELLATION_DATE_TIME" char(14)
+  "RETURN_DATE_TIME" char(14)
+  "COMPLETE_DATE_TIME" char(14)
+  "BOOKING_START_DATE_TIME" char(14) [not null]
+  "BOOKING_END_DATE_TIME" char(14) [not null]
+  "BOOKING_DATE_TIME" char(14) [not null]
+
+Indexes {
+  BOOKING_ID [pk]
+  (BOOKING_START_DATE_TIME, BOOKING_END_DATE_TIME) [name: "IDX_BOOKING_DATE_TIME"]
+  (ROOM_ID, BOOKING_START_DATE_TIME, BOOKING_END_DATE_TIME) [name: "IDX_ROOM_BOOKING_DATE_TIME"]
+  (ROOM_ID, FLOOR_ID, OFFICE_ID, BOOKING_START_DATE_TIME, BOOKING_END_DATE_TIME) [name: "IDX_ROOM_FLOOR_OFFICE_BOOKING_DATE_TIME"]
+  (USER_ID, BOOKING_START_DATE_TIME, BOOKING_END_DATE_TIME) [name: "IDX_USER_BOOKING_DATE_TIME"]
+}
+}
+
+Table "dbo"."VMS_BOOKINGS_MEMBERS" {
+  "BOOKING_ID" nvarchar(50) [not null]
+  "USER_ID" nvarchar(30) [not null]
+  "USER_NAME" nvarchar(50) [not null]
+  "USER_DEPT_CODE" varchar(6)
+  "USER_DESG_NAME" varchar(6)
+  "USER_ROLE_NAME" varchar(6)
+  "USER_TYPE" char(1) [not null]
+  "IS_HOST" bit [not null, default: 0]
+
+Indexes {
+  BOOKING_ID [pk]
+  USER_ID [name: "IDX_USER_ID"]
+  USER_NAME [name: "IDX_USER_NAME"]
+}
+}
+
+Table "dbo"."VMS_DISPLAYS" {
+  "DOOR_DISPLAY_ID" int [not null, increment]
+  "DOOR_DISPLAY_NO" nvarchar(10) [not null]
+  "DOOR_DISPLAY_NAME" nvarchar(50) [not null]
+  "DOOR_DISPLAY_LOCATION" nvarchar(100)
+  "OFFICE_ID" int [not null]
+  "FLOOR_ID" int
+  "ROOM_ID" int
+  "PANTRY_ID" int
+  "MACHINE_ID" nvarchar(100) [not null]
+  "IP_ADDRESS" nvarchar(15)
+  "SUBNET_MASK" nvarchar(15)
+  "MAC_ADDRESS" nvarchar(20)
+  "IS_ALLOW_NOTICE" bit [not null, default: 1]
+  "IS_ALLOW_BOOKING" bit [not null, default: 1]
+  "IS_ALLOW_AMENITIES" bit [not null, default: 1]
+  "IS_ALLOW_HOST_INFO" bit [not null, default: 1]
+  "IS_ALLOW_NEXT_MEETING" bit [not null, default: 1]
+  "IS_ALLOW_ADD_INTERNAL_USER" bit [not null, default: 1]
+  "IS_ALLOW_ADD_EXTERNAL_USER" bit [not null, default: 1]
+  "IS_ALLOW_BOOKING_CONFIRMATION" bit [not null, default: 1]
+  "LICENCE_KEY" nvarchar(100)
+  "LICENCE_ACTIVATION_DATE" char(14)
+  "LICENCE_EXPIRY_DATE" char(14)
+  "IS_ACTIVE" bit [not null, default: 1]
+  "CREATED_AT" char(14) [not null]
+  "UPDATED_AT" char(14)
+
+Indexes {
+  DOOR_DISPLAY_ID [pk]
+  DOOR_DISPLAY_NO [unique, name: "WN_DOOR_DISPLAY_DOOR_DISPLAY_NO_key"]
+}
+}
+
+Table "dbo"."VMS_RESTRICTION_SETTINGS" {
+  "ID" int [not null, increment]
+  "LOCATION" nvarchar(20) [not null]
+  "LOCATION_ID" int [not null]
+  "IS_CONFIRMATION_REQUIRED" bit [not null]
+  "CONFIRMATION_WAIT_TIME" int [not null]
+  "IS_APPROVAL_REQUIRED" bit [not null]
+  "APPROVAL_WAIT_TIME" int [not null]
+  "IS_AUTO_CANCEL_ALLOWED" bit [not null]
+  "CANCELLATION_WAIT_TIME" int [not null]
+  "IS_MESSAGE_ALLOWED" bit [not null]
+  "IDENTITY_RESTRICTION" bit [not null]
+  "DEPARTMENT_RESTRICTION" bit [not null]
+
+Indexes {
+  ID [pk]
+  (LOCATION, LOCATION_ID) [name: "IDX_LOCATION"]
+}
+}
+
+Table "dbo"."VMS_ROOM_AMENITIES_MAP" {
+  "ROOM_ID" int [not null]
+  "AMENITIES_ID" int [not null]
+
+Indexes {
+  (ROOM_ID, AMENITIES_ID) [pk]
+  (ROOM_ID, AMENITIES_ID) [name: "IDX_ROOM_AMENITIES_MAPPING"]
+}
+}
