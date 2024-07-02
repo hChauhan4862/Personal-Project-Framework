@@ -1,0 +1,10 @@
+{
+        "name": "hc_micro",
+        "id": "85ae84f3-3a72-4764-9c69-3bb24ebf29f8",
+        "project": "c0cot75b",
+        "runtime": "python3.9",
+        "endpoint": "https://pbkjvp.deta.dev",
+        "region": "ap-southeast-1",
+        "visor": "disabled",
+        "http_auth": "disabled"
+}
