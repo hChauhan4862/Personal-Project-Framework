@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+python-jose[cryptography]
+passlib[bcrypt]
+grpcio
+sqlalchemy
+SQLAlchemy
+mysql-connector-python
+
+databases
+aiomysql
+python-multipart
+pymysql
+requests
